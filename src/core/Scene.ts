@@ -1,78 +1,67 @@
+import { Object3D } from './Object3D';
 
-let id = 0;
+class Scene extends Object3D {
+	isScene = true;
+	type = 'Scene';
+	background: any;
+	environment: any;
+	fog: any;
+	overrideMaterial: any;
+	autoUpdate: boolean;
+	matrixAutoUpdate: boolean;
+	
+	constructor() {
 
-class Scene {
-  gl: WebGL2RenderingContext;
-  // program: any;
-  objects: any[];
-  // transforms: Transforms;
+		super();
 
-  constructor() {
+		// this.type = 'Scene';
 
-    this.objects = [];
-    // this.transforms = new Transforms(gl);
-    this.load = this.load.bind(this);
-    this.loadByParts= this.loadByParts.bind(this);
-  }
+		this.background = null;
+		this.environment = null;
+		this.fog = null;
 
-  // Find the item with given alias
-  get = (alias) => {
-    return this.objects.find(object => object.alias === alias);
-  }
+		this.overrideMaterial = null;
 
-  // Asynchronously load a file
-  load(filename, alias) {
-    return fetch(filename)
-    .then(res => res.json())
-    .then(object => {
-      object.visible = true;
-      object.alias = alias || object.alias;
-      this.add(object);
-    })
-    .catch((err) => console.error(err));
-  }
+		this.autoUpdate = true; // checked by the renderer
 
-  // Helper function for returning as list of items for a given model
-  loadByParts(path, count, alias) {
-    for (let i = 1; i <= count; i++) {
-      const part = `${path}${i}.json`;
-      this.load(part, alias);
-    }
-  }
+		// if ( typeof __THREE_DEVTOOLS__ !== 'undefined' ) {
 
-  // Add object to scene, by settings default and configuring all necessary
-  // buffers and textures
-  add = (object) => {
+		// 	__THREE_DEVTOOLS__.dispatchEvent( new CustomEvent( 'observe', { detail: this } ) ); // eslint-disable-line no-undef
 
-    // // Push to our objects list for later access
-    object.id = id;
-    id++;
-    this.objects.push(object);
+		// }
 
-  }
+	}
 
-  // Traverses over every item in the scene
-  traverse = (cb) => {
-    for(let i = 0; i < this.objects.length; i++) {
-      // console.log(this.objects[i])
-      // Break out of the loop as long as any value is returned
-      if (cb(this.objects[i], i) !== undefined) break;
-    }
-  }
+	copy( source, recursive ) {
 
-  // Removes an item from the scene with a given alias
-  remove = (alias) => {
-    const object = this.get(alias);
-    const index = this.objects.indexOf(object);
-    this.objects.splice(index, 1);
-  }
+		super.copy( source, recursive );
 
-  // Construct and print a string representing the render order (useful for debugging)
-  printRenderOrder() {
-    const renderOrder = this.objects.map(object => object.alias).join(' > ');
-    console.info('Render Order:', renderOrder);
-  }
+		if ( source.background !== null ) this.background = source.background.clone();
+		if ( source.environment !== null ) this.environment = source.environment.clone();
+		if ( source.fog !== null ) this.fog = source.fog.clone();
+
+		if ( source.overrideMaterial !== null ) this.overrideMaterial = source.overrideMaterial.clone();
+
+		this.autoUpdate = source.autoUpdate;
+		this.matrixAutoUpdate = source.matrixAutoUpdate;
+
+		return this;
+
+	}
+
+	toJSON( meta ) {
+
+		const data = super.toJSON( meta );
+
+		if ( this.background !== null ) data.object.background = this.background.toJSON( meta );
+		if ( this.environment !== null ) data.object.environment = this.environment.toJSON( meta );
+		if ( this.fog !== null ) data.object.fog = this.fog.toJSON();
+
+		return data;
+
+	}
 
 }
 
-export default Scene;
+
+export { Scene };

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
-import {UniformCache} from './cache/UniformCache';
+import {UniformsCache} from './cache/UniformsCache';
 
 
 let programIdCount = 0;
@@ -398,7 +398,7 @@ interface IProgram {
 	vertexShader: any;
 	fragmentShader: any;
 	getAttributes: () => Record<string, number> ;
-	getUniforms: () => UniformCache;
+	getUniforms: () => UniformsCache;
 	destroy: () => void;
 }
 
@@ -827,11 +827,11 @@ function Program( renderer, cacheKey, parameters, bindingStates, info): IProgram
 
 	let cachedUniforms;
 
-	this.getUniforms = function (): UniformCache {
+	this.getUniforms = function (): UniformsCache {
 
 		if ( cachedUniforms === undefined ) {
 
-			cachedUniforms = new UniformCache( gl, program, info);
+			cachedUniforms = new UniformsCache( gl, program, info);
 
 		}
 
