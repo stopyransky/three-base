@@ -1,16 +1,18 @@
 import "./styles.css";
 import * as dat from 'dat.gui';
 
-import Clock from './core/Clock';
-import Scene from './core/Scene';
-import Camera from "./core/Camera";
-import Controls from "./core/Controls";
+import {Clock} from './core/Clock';
+import {Scene} from './core/Scene';
+import {PerspectiveCamera} from "./core/PerspectiveCamera";
+import {OrbitControls} from "./core/OrbitControls";
+
 import Mesh from './core/Mesh';
-import Renderer from "./Renderer";
+// import Renderer from "./Renderer";
 
 import makeTetraGeometry from './models/Tetrahedron';
 import BasicMaterial from './materials/BasicMaterial';
 import Stats from './helpers/Stats';
+import { WebGLRenderer } from "./WebGLRenderer";
 
 
 
@@ -76,7 +78,7 @@ function tick(time, dt) {
 
 function init() {
   stats = Stats();
-  renderer = new Renderer({ canvas });
+  renderer = new WebGLRenderer({ canvas });
 
 
   // perfLib = new GLPerf({
@@ -96,13 +98,13 @@ function init() {
   //   },
   // });
 
-  clock = new Clock(guiParams.clockSpeed);
+  clock = new Clock(guiParams.clockSpeed); // not working currently
   scene = new Scene();
 
-  camera = new Camera(45, window.innerWidth/window.innerHeight);
-  camera.setPosition(0, 0, 12)
-  camera.setElevation(-Math.PI/12); // 30 deg
-  controls = new Controls(camera, canvas)
+  camera = new PerspectiveCamera(45, window.innerWidth/window.innerHeight);
+  // camera.setPosition(0, 0, 12)
+  // camera.setElevation(-Math.PI/12); // 30 deg
+  controls = new OrbitControls(camera, canvas)
   
   const tetraGeometry = makeTetraGeometry(1.6);
   // const floorGeometry = makeFloorGeometry({dimension: 5.0 , lines: 10, alignment: 'Y', shift: 0 });
@@ -131,7 +133,8 @@ function init() {
 
 
   // perfLib.begin('profiler');
-  clock.on('tick', tick);
+  // clock.on('tick', tick);
+  // clock.
 
 }
 
@@ -212,5 +215,5 @@ function initGui() {
 
 }
 
-initGui();
+// initGui();
 
