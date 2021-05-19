@@ -195,6 +195,39 @@ class UniformsCache {
 	
 	}
 
+	static seqWithValue( seq, values ) {
+
+		const r = [];
+	
+		for ( let i = 0, n = seq.length; i !== n; ++ i ) {
+	
+			const uniform = seq[ i ];
+			if ( uniform.id in values ) r.push( uniform );
+	
+		}
+	
+		return r;
+	
+	}
+
+	static upload( gl, seq, values, textures ) {
+
+		for ( let i = 0, n = seq.length; i !== n; ++ i ) {
+	
+			const u = seq[ i ],
+				v = values[ u.id ];
+	
+			if ( v.needsUpdate !== false ) {
+	
+				// note: always updating when .needsUpdate is undefined
+				u.setValue( gl, v.value, textures );
+	
+			}
+	
+		}
+	
+	};
+
 	constructor( gl: WebGL2RenderingContext, program: WebGLProgram, info ) {
 		this.gl = gl;
 		this.seq = [];
@@ -220,8 +253,8 @@ class UniformsCache {
 	}
 
 	setValue  = ( name: string, value: any, textures? ) => {
-		const { gl } = this;
-		const uniform = this.map[ name ];
+		const { gl, map } = this;
+		const uniform = map[ name ];
 	
 		if ( typeof uniform !== 'undefined' ) uniform.setValue( gl, value, textures );
 	
@@ -229,20 +262,7 @@ class UniformsCache {
 
 
 
-	// seqWithValue = ( seq, values ) => {
 
-	// 	const r = [];
-	
-	// 	for ( let i = 0, n = seq.length; i !== n; ++ i ) {
-	
-	// 		const uniform = seq[ i ];
-	// 		if ( uniform.id in values ) r.push( uniform );
-	
-	// 	}
-	
-	// 	return r;
-	
-	// };
 
 
 }

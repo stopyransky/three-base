@@ -1,4 +1,4 @@
-import { Vector3 } from './Vector3.js';
+import { Vector3 } from './Vector3';
 import { Sphere } from './Sphere';
 import { Plane } from './Plane';
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
-import { Vector3 } from './Vector3.js';
+import { Vector3 } from './Vector3';
 
 class Box3 {
 	isBox3 = true;
