@@ -1,0 +1,33 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100%;
+  font-family: sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+canvas {
+  /* border: 5px dashed burlywood; */
+  width: 100%;
+  height: 100vh;
+}
+
+div#stats {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 300px;
+  height: 200px;
+  background-color: red;
+  overflow-y: auto;
+}
+
+div#row {
+display: flex;
+flex-flow: column nowrap;
+
+}
