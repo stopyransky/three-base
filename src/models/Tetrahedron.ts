@@ -1,7 +1,56 @@
-import { Geometry } from "../Mesh";
+import { BufferAttribute } from '../core/BufferAttribute';
+import { BufferGeometry } from '../core/BufferGeometry';
+import { MeshBasicMaterial  } from '../core/MeshBasicMaterial';
+
+const vertexShader = `#version 300 es
+precision mediump float;
+
+uniform mat4 uModelViewMatrix;
+uniform mat4 uProjectionMatrix;
+
+in vec3 aPosition;
+in vec3 aColor;
+
+out vec4 vColor;
+
+void main () {
+
+  vColor = vec4(aColor, 1.0);
+  gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+
+}
+
+`;
+
+const fragmentShader = `#version 300 es
+precision mediump float;
+
+in vec4 vColor;
+out vec4 fragColor;
+
+void main () {
+  fragColor = vec4(vColor);
+}
+`;
+
+const parameters = {
+  // defines: {},
+  // uniforms: {},
+//  fragmentShader,
+//  vertexShader,
+ wireframe: false,
+ wireframeLinewidth: 1.0,
+//  lights: false,
+ morphTargets: false,
+//  morphNormals: false,
+}
 
 
-export default function makeTetrahedron(side = Math.sqrt(3), rad = 0): Geometry {
+export default {
+  material: new MeshBasicMaterial(parameters),
+
+  makeGeometry(side = Math.sqrt(3), rad = 0): BufferGeometry {
+
     const R = side / Math.sqrt(3);
     const tau = 2.0 * Math.PI;
     const deg120 = tau/3;
@@ -31,16 +80,12 @@ export default function makeTetrahedron(side = Math.sqrt(3), rad = 0): Geometry 
     ];
 
 
-    return {
-      attributeNames: ['aPosition', 'aColor'],
-      index: indices,
-      count: 12,
-      mode: 'TRIANGLES',
-      aPosition: positions,
-      aColor: colors,
-      attributes: {
-        positions,
-        colors
-      }
-    };
+    const geometry = new BufferGeometry()
+    geometry.setAttribute('position', new BufferAttribute( new Float32Array(positions), 3))
+    geometry.setAttribute('color', new BufferAttribute(new Float32Array(colors), 3))
+    geometry.setIndex(indices);
+
+    return geometry;
   }
+}
+
