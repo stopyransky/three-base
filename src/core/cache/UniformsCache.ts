@@ -4,7 +4,7 @@
  * 
  */
 // import WebGLInfo from './WebGLInfo';
-import UniformUtils from './UniformUtils';
+import UniformUtils from './UniformCacheUtils';
 
 // import { CubeTexture } from './textures/CubeTexture';
 // import { Texture } from '../textures/Texture.js';

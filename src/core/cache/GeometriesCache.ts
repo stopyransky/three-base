@@ -4,23 +4,7 @@ import { Uint16BufferAttribute, Uint32BufferAttribute } from '../BufferAttribute
 import { IWebGLInfo } from '../WebGLInfo';
 import { IAttributesCache } from './AttributesCache';
 import { IBindingStatesCache } from './BindingStateCache';
-
-
-function arrayMax( array ) {
-
-	if ( array.length === 0 ) return - Infinity;
-
-	let max = array[ 0 ];
-
-	for ( let i = 1, l = array.length; i < l; ++ i ) {
-
-		if ( array[ i ] > max ) max = array[ i ];
-
-	}
-
-	return max;
-
-}
+import { arrayMax } from '../utils';
 
 interface IGeometriesCache {
 	get: (object, geometry) => any; // any = buffer geometry
