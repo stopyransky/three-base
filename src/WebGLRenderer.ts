@@ -30,14 +30,14 @@ import { WebGLCapabilities } from "./core/WebGLCapabilities";
 import { WebGLExtensions } from "./core/WebGLExtensions";
 import WebGLInfo from "./core/WebGLInfo";
 import WebGLState from "./core/WebGLState";
-import { WebGLUtils } from "./core/WebGLUtils";
 import { WebGLBufferRenderer } from "./core/BufferRenderer";
 import { WebGLIndexedBufferRenderer } from "./core/IndexedBufferRenderer";
 import { WebGLMaterials } from "./core/WebGLMaterials";
 import { WebGLAnimation } from "./core/WebGLAnimation";
+// import { WebGLUtils } from "./core/WebGLUtils";
 
 // discard / on hold
-// import { WebGLBackground } from "./core/WebGLBackground";
+import { WebGLBackground } from "./core/WebGLBackground";
 // import { WebGLRenderStates } from "./core/WebGLRenderStates"; // lights and shadows
 // import { WebGLClipping } from "./core/WebGLClipping";
 // import { WebGLCubeMaps } from "./core/WebGLCubeMaps";
@@ -46,6 +46,10 @@ import { WebGLAnimation } from "./core/WebGLAnimation";
 // import { WebGLTextures } from "./core/WebGLTextures";
 // import { WebXRManager } from "./webxr/WebXRManager";
 // import { DataTexture } from "../textures/DataTexture";
+// import DebugLogger from './helpers/DebugLogger';
+// const logger = DebugLogger();
+
+
 
 function createCanvasElement() {
   const canvas = document.createElementNS(
@@ -265,10 +269,10 @@ function WebGLRenderer(parameters) {
   }
 
   let extensions,
-    capabilities, 
-    state, 
-    info, 
-    // textures, 
+    capabilities,
+    state,
+    info,
+    // textures,
     // cubemaps,
     propertiesCache,
     attributesCache,
@@ -277,10 +281,10 @@ function WebGLRenderer(parameters) {
     programsCache,
     bindingStatesCache;
 
-  let materials, 
-    renderLists, 
-    // renderStates, 
-    // clipping, 
+  let materials,
+    renderLists,
+    // renderStates,
+    // clipping,
     // shadowMap,
     background,
     morphtargets,
@@ -339,6 +343,7 @@ function WebGLRenderer(parameters) {
 
     materials = WebGLMaterials(propertiesCache);
     // renderStates = new WebGLRenderStates(extensions, capabilities);
+    
     // background = new WebGLBackground(
     // 	_this,
     // 	cubemaps,
@@ -346,6 +351,13 @@ function WebGLRenderer(parameters) {
     // 	objects,
     // 	_premultipliedAlpha
     // );
+
+    background = WebGLBackground(
+    	_this,
+    	state,
+    	_premultipliedAlpha
+    );
+
     // shadowMap = new WebGLShadowMap(_this, objects, capabilities);
 
     bufferRenderer = new WebGLBufferRenderer(_gl, info);
@@ -879,7 +891,6 @@ function WebGLRenderer(parameters) {
         }
       }
     });
-
   };
 
   // Animation Loop
@@ -890,13 +901,13 @@ function WebGLRenderer(parameters) {
     if (onAnimationFrameCallback) onAnimationFrameCallback(time);
   }
 
-  function onXRSessionStart() {
-    animation.stop();
-  }
+  // function onXRSessionStart() {
+  //   animation.stop();
+  // }
 
-  function onXRSessionEnd() {
-    animation.start();
-  }
+  // function onXRSessionEnd() {
+  //   animation.start();
+  // }
 
   const animation = WebGLAnimation();
   animation.setAnimationLoop(onAnimationFrame);
@@ -907,7 +918,11 @@ function WebGLRenderer(parameters) {
     onAnimationFrameCallback = callback;
     // xr.setAnimationLoop(callback);
 
-    callback === null ? animation.stop() : animation.start();
+    if (callback === null) {
+      animation.stop();
+    } else {
+      animation.start();
+    }
   };
 
   // xr.addEventListener("sessionstart", onXRSessionStart);
@@ -991,7 +1006,7 @@ function WebGLRenderer(parameters) {
 
     //
 
-    background.render(currentRenderList, scene);
+    background.render(scene, currentRenderList);
 
     // render scene
 
@@ -999,8 +1014,9 @@ function WebGLRenderer(parameters) {
     const transparentObjects = currentRenderList.transparent;
 
     if (opaqueObjects.length > 0) renderObjects(opaqueObjects, scene, camera);
-    if (transparentObjects.length > 0)
+    if (transparentObjects.length > 0) {
       renderObjects(transparentObjects, scene, camera);
+    }
 
     //
 
@@ -1028,7 +1044,7 @@ function WebGLRenderer(parameters) {
 
     // _gl.finish();
 
-    bindingStatesCache.resetDefaultState();
+    // bindingStatesCache.resetDefaultState();
     _currentMaterialId = -1;
     _currentCamera = null;
 
@@ -1059,12 +1075,12 @@ function WebGLRenderer(parameters) {
         groupOrder = object.renderOrder;
       } else if (object.isLOD) {
         if (object.autoUpdate === true) object.update(camera);
-      // } else if (object.isLight) {
-      //   currentRenderState.pushLight(object);
+        // } else if (object.isLight) {
+        //   currentRenderState.pushLight(object);
 
-      //   if (object.castShadow) {
-      //     currentRenderState.pushShadow(object);
-      //   }
+        //   if (object.castShadow) {
+        //     currentRenderState.pushShadow(object);
+        //   }
       } else if (object.isSprite) {
         if (!object.frustumCulled || _frustum.intersectsSprite(object)) {
           if (sortObjects) {
@@ -1359,18 +1375,18 @@ function WebGLRenderer(parameters) {
     // textures.resetTextureUnits();
 
     const fog = scene.fog;
-    
+
     // const environment = material.isMeshStandardMaterial
     //   ? scene.environment
     //   : null;
-    
-      const encoding =
+
+    const encoding =
       _currentRenderTarget === null
         ? _this.outputEncoding
         : _currentRenderTarget.texture.encoding;
 
     // const envMap = cubemaps.get(material.envMap || environment);
-    
+
     const vertexAlphas =
       material.vertexColors === true &&
       object.geometry &&
@@ -1424,16 +1440,16 @@ function WebGLRenderer(parameters) {
         materialProperties.skinning === true
       ) {
         needsProgramChange = true;
-      // } else if (materialProperties.envMap !== envMap) {
-      //   needsProgramChange = true;
+        // } else if (materialProperties.envMap !== envMap) {
+        //   needsProgramChange = true;
       } else if (material.fog && materialProperties.fog !== fog) {
         needsProgramChange = true;
-      // } else if (
-      //   materialProperties.numClippingPlanes !== undefined &&
-      //   (materialProperties.numClippingPlanes !== clipping.numPlanes ||
-      //     materialProperties.numIntersection !== clipping.numIntersection)
-      // ) {
-      //   needsProgramChange = true;
+        // } else if (
+        //   materialProperties.numClippingPlanes !== undefined &&
+        //   (materialProperties.numClippingPlanes !== clipping.numPlanes ||
+        //     materialProperties.numIntersection !== clipping.numIntersection)
+        // ) {
+        //   needsProgramChange = true;
       } else if (materialProperties.vertexAlphas !== vertexAlphas) {
         needsProgramChange = true;
       }

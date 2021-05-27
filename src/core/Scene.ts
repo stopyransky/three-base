@@ -1,9 +1,11 @@
+import { Color } from '../math/Color';
 import { Object3D } from './Object3D';
 
 class Scene extends Object3D {
 	isScene = true;
 	type = 'Scene';
-	background: any;
+
+	background: Color;
 	environment: any;
 	fog: any;
 	overrideMaterial: any;

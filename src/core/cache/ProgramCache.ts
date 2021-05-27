@@ -1,20 +1,23 @@
-import { BackSide, DoubleSide,  ObjectSpaceNormalMap, 
-  TangentSpaceNormalMap } from '../constants';
+import { BackSide, DoubleSide,  ObjectSpaceNormalMap, NoToneMapping,
+  TangentSpaceNormalMap, 
+	LinearEncoding,
+	CubeUVReflectionMapping,
+	CubeUVRefractionMapping} from '../constants';
 import { Program, IProgram } from '../Program';
-// import { ShaderLib } from '../shaders/ShaderLib.js';
-// import { UniformsUtils } from '../shaders/UniformsUtils.js';
+import { ShaderLib } from '../shaders/ShaderLib';
+import { UniformsUtils } from '../shaders/UniformsUtils';
 
 interface IProgramParameters {
 	isWebGL2: boolean,
 
-	// shaderID: shaderID,
+	shaderID: string,
 	shaderName: string,
 
 	vertexShader: string,
 	fragmentShader: string,
-	// defines: material.defines,
+	defines: any,
 
-	// isRawShaderMaterial: material.isRawShaderMaterial === true,
+	isRawShaderMaterial: boolean,
 	glslVersion: string,
 
 	precision: string,
@@ -22,21 +25,21 @@ interface IProgramParameters {
 	instancing: boolean,
 	instancingColor: boolean,
 
-	supportsVertexTextures: boolean,
-	// outputEncoding: ( currentRenderTarget !== null ) ? getTextureEncodingFromMap( currentRenderTarget.texture ) : renderer.outputEncoding,
-	// map: !! material.map,/
-	// mapEncoding: getTextureEncodingFromMap( material.map ),
-	// matcap: !! material.matcap,
-	// matcapEncoding: getTextureEncodingFromMap( material.matcap ),
-	// envMap: !! envMap,
-	// envMapMode: envMap && envMap.mapping,
-	// envMapEncoding: getTextureEncodingFromMap( envMap ),
-	// envMapCubeUV: ( !! envMap ) && ( ( envMap.mapping === CubeUVReflectionMapping ) || ( envMap.mapping === CubeUVRefractionMapping ) ),
-	// lightMap: !! material.lightMap,
-	// lightMapEncoding: getTextureEncodingFromMap( material.lightMap ),
-	// aoMap: !! material.aoMap,
-	// emissiveMap: !! material.emissiveM/ap,
-	// emissiveMapEncoding: getTextureEncodingFromMap( material.emissiveMap ),
+	supportsVertexTextures: boolean;
+	outputEncoding: any;
+	map: any,
+	mapEncoding: any,
+	matcap: boolean,
+	matcapEncoding: any;
+	envMap: boolean,
+	envMapMode: any,
+	envMapEncoding: any,
+	envMapCubeUV: any;
+	lightMap: boolean,
+	lightMapEncoding: any,
+	aoMap: boolean,
+	emissiveMap: boolean,
+	emissiveMapEncoding: any,
 	bumpMap: boolean,
 	normalMap: boolean,
 	objectSpaceNormalMap: boolean,
@@ -98,7 +101,7 @@ interface IProgramParameters {
 	// shadowMapEnabled: renderer.shadowMap.enabled && shadows.length > 0,
 	// shadowMapType: renderer.shadowMap.type,
 
-	// toneMapping: material.toneMapped ? renderer.toneMapping : NoToneMapping,
+	toneMapping: any,
 	// physicallyCorrectLights: renderer.physicallyCorrectLights,
 
 	premultipliedAlpha: boolean;
@@ -137,7 +140,7 @@ function ProgramsCache( renderer, capabilities, bindingStates, info ): IPrograms
 
 	const programs = [];
 
-	// const isWebGL2 = capabilities.isWebGL2;
+	const isWebGL2 = capabilities.isWebGL2;
 	const logarithmicDepthBuffer = capabilities.logarithmicDepthBuffer;
 	const floatVertexTextures = capabilities.floatVertexTextures;
 	const maxVertexUniforms = capabilities.maxVertexUniforms;
@@ -145,38 +148,38 @@ function ProgramsCache( renderer, capabilities, bindingStates, info ): IPrograms
 
 	let precision = capabilities.precision;
 
-	// const shaderIDs = {
-	// 	MeshDepthMaterial: 'depth',
-	// 	MeshDistanceMaterial: 'distanceRGBA',
-	// 	MeshNormalMaterial: 'normal',
-	// 	MeshBasicMaterial: 'basic',
-	// 	MeshLambertMaterial: 'lambert',
-	// 	MeshPhongMaterial: 'phong',
-	// 	MeshToonMaterial: 'toon',
-	// 	MeshStandardMaterial: 'physical',
-	// 	MeshPhysicalMaterial: 'physical',
-	// 	MeshMatcapMaterial: 'matcap',
-	// 	LineBasicMaterial: 'basic',
-	// 	LineDashedMaterial: 'dashed',
-	// 	PointsMaterial: 'points',
-	// 	ShadowMaterial: 'shadow',
-	// 	SpriteMaterial: 'sprite'
-	// };
+	const shaderIDs = {
+		// MeshDepthMaterial: 'depth',
+		// MeshDistanceMaterial: 'distanceRGBA',
+		// MeshNormalMaterial: 'normal',
+		MeshBasicMaterial: 'basic',
+		// MeshLambertMaterial: 'lambert',
+		// MeshPhongMaterial: 'phong',
+		// MeshToonMaterial: 'toon',
+		// MeshStandardMaterial: 'physical',
+		// MeshPhysicalMaterial: 'physical',
+		// MeshMatcapMaterial: 'matcap',
+		// LineBasicMaterial: 'basic',
+		// LineDashedMaterial: 'dashed',
+		// PointsMaterial: 'points',
+		// ShadowMaterial: 'shadow',
+		// SpriteMaterial: 'sprite'
+	};
 
-	// const parameterNames = [
-	// 	'precision', 'isWebGL2', 'supportsVertexTextures', 'outputEncoding', 'instancing', 'instancingColor',
-	// 	'map', 'mapEncoding', 'matcap', 'matcapEncoding', 'envMap', 'envMapMode', 'envMapEncoding', 'envMapCubeUV',
-	// 	'lightMap', 'lightMapEncoding', 'aoMap', 'emissiveMap', 'emissiveMapEncoding', 'bumpMap', 'normalMap', 'objectSpaceNormalMap', 'tangentSpaceNormalMap', 'clearcoatMap', 'clearcoatRoughnessMap', 'clearcoatNormalMap', 'displacementMap', 'specularMap',
-	// 	'roughnessMap', 'metalnessMap', 'gradientMap',
-	// 	'alphaMap', 'combine', 'vertexColors', 'vertexAlphas', 'vertexTangents', 'vertexUvs', 'uvsVertexOnly', 'fog', 'useFog', 'fogExp2',
-	// 	'flatShading', 'sizeAttenuation', 'logarithmicDepthBuffer', 'skinning',
-	// 	'maxBones', 'useVertexTexture', 'morphTargets', 'morphNormals', 'premultipliedAlpha',
-	// 	'numDirLights', 'numPointLights', 'numSpotLights', 'numHemiLights', 'numRectAreaLights',
-	// 	'numDirLightShadows', 'numPointLightShadows', 'numSpotLightShadows',
-	// 	'shadowMapEnabled', 'shadowMapType', 'toneMapping', 'physicallyCorrectLights',
-	// 	'alphaTest', 'doubleSided', 'flipSided', 'numClippingPlanes', 'numClipIntersection', 'depthPacking', 'dithering',
-	// 	'sheen', 'transmissionMap'
-	// ];
+	const parameterNames = [
+		'precision', 'isWebGL2', 'supportsVertexTextures', 'outputEncoding', 'instancing', 'instancingColor',
+		'map', 'mapEncoding', 'matcap', 'matcapEncoding', 'envMap', 'envMapMode', 'envMapEncoding', 'envMapCubeUV',
+		'lightMap', 'lightMapEncoding', 'aoMap', 'emissiveMap', 'emissiveMapEncoding', 'bumpMap', 'normalMap', 'objectSpaceNormalMap', 'tangentSpaceNormalMap', 'clearcoatMap', 'clearcoatRoughnessMap', 'clearcoatNormalMap', 'displacementMap', 'specularMap',
+		'roughnessMap', 'metalnessMap', 'gradientMap',
+		'alphaMap', 'combine', 'vertexColors', 'vertexAlphas', 'vertexTangents', 'vertexUvs', 'uvsVertexOnly', 'fog', 'useFog', 'fogExp2',
+		'flatShading', 'sizeAttenuation', 'logarithmicDepthBuffer', 'skinning',
+		'maxBones', 'useVertexTexture', 'morphTargets', 'morphNormals', 'premultipliedAlpha',
+		'numDirLights', 'numPointLights', 'numSpotLights', 'numHemiLights', 'numRectAreaLights',
+		'numDirLightShadows', 'numPointLightShadows', 'numSpotLightShadows',
+		'shadowMapEnabled', 'shadowMapType', 'toneMapping', 'physicallyCorrectLights',
+		'alphaTest', 'doubleSided', 'flipSided', 'numClippingPlanes', 'numClipIntersection', 'depthPacking', 'dithering',
+		'sheen', 'transmissionMap'
+	];
 
 	function getMaxBones( object ) {
 
@@ -214,37 +217,38 @@ function ProgramsCache( renderer, capabilities, bindingStates, info ): IPrograms
 
 	}
 
-	// function getTextureEncodingFromMap( map ) {
+	function getTextureEncodingFromMap( map ) {
 
-	// 	let encoding;
+		let encoding;
 
-	// 	if ( map && map.isTexture ) {
+		if ( map && map.isTexture ) {
 
-	// 		encoding = map.encoding;
+			encoding = map.encoding;
 
-	// 	} else if ( map && map.isWebGLRenderTarget ) {
+		} else if ( map && map.isWebGLRenderTarget ) {
 
-	// 		console.warn( 'THREE.WebGLPrograms.getTextureEncodingFromMap: don\'t use render targets as textures. Use their .texture property instead.' );
-	// 		encoding = map.texture.encoding;
+			console.warn( 'THREE.WebGLPrograms.getTextureEncodingFromMap: don\'t use render targets as textures. Use their .texture property instead.' );
+			encoding = map.texture.encoding;
 
-	// 	} else {
+		} else {
 
-	// 		encoding = LinearEncoding;
+			encoding = LinearEncoding;
 
-	// 	}
+		}
 
-	// 	return encoding;
+		return encoding;
 
-	// }
+	}
 
 	function getParameters( scene, object, material, lights = null, shadows = null ): IProgramParameters {
 
 		const fog = scene.fog;
-		// const environment = material.isMeshStandardMaterial ? scene.environment : null;
+		const environment = material.isMeshStandardMaterial ? scene.environment : null;
 
 		// const envMap = cubemaps.get( material.envMap || environment );
+		const envMap = environment;
 
-		// const shaderID = shaderIDs[ material.type ];
+		const shaderID = shaderIDs[ material.type ];
 
 		// heuristics to create shader parameters according to lights in the scene
 		// (not to blow over maxLights budget)
@@ -252,8 +256,8 @@ function ProgramsCache( renderer, capabilities, bindingStates, info ): IPrograms
 		const maxBones = object.isSkinnedMesh ? getMaxBones( object ) : 0;
 
 		if ( material.precision !== null ) {
-
 			precision = capabilities.getMaxPrecision( material.precision );
+			console.log(material.precision, precision)
 
 			if ( precision !== material.precision ) {
 
@@ -265,34 +269,34 @@ function ProgramsCache( renderer, capabilities, bindingStates, info ): IPrograms
 
 		let vertexShader, fragmentShader;
 
-		// if ( shaderID ) {
+		if ( shaderID ) {
 
-		// 	const shader = ShaderLib[ shaderID ];
+			const shader = ShaderLib[ shaderID ];
 
-		// 	vertexShader = shader.vertexShader;
-		// 	fragmentShader = shader.fragmentShader;
+			vertexShader = shader.vertexShader;
+			fragmentShader = shader.fragmentShader;
 
-		// } else {
+		} else {
 
 			vertexShader = material.vertexShader;
 			fragmentShader = material.fragmentShader;
 
-		// }
+		}
 
-		// const currentRenderTarget = renderer.getRenderTarget();
+		const currentRenderTarget = renderer.getRenderTarget();
 
 		const parameters: IProgramParameters = {
 
-			isWebGL2: true,
+			isWebGL2: isWebGL2,
 
-			// shaderID: shaderID,
+			shaderID: shaderID,
 			shaderName: material.type,
 
 			vertexShader: vertexShader,
 			fragmentShader: fragmentShader,
-			// defines: material.defines,
+			defines: material.defines,
 
-			// isRawShaderMaterial: material.isRawShaderMaterial === true,
+			isRawShaderMaterial: material.isRawShaderMaterial === true,
 			glslVersion: material.glslVersion,
 
 			precision: precision,
@@ -301,20 +305,20 @@ function ProgramsCache( renderer, capabilities, bindingStates, info ): IPrograms
 			instancingColor: object.isInstancedMesh === true && object.instanceColor !== null,
 
 			supportsVertexTextures: vertexTextures,
-			// outputEncoding: ( currentRenderTarget !== null ) ? getTextureEncodingFromMap( currentRenderTarget.texture ) : renderer.outputEncoding,
-			// map: !! material.map,/
-			// mapEncoding: getTextureEncodingFromMap( material.map ),
-			// matcap: !! material.matcap,
-			// matcapEncoding: getTextureEncodingFromMap( material.matcap ),
-			// envMap: !! envMap,
-			// envMapMode: envMap && envMap.mapping,
-			// envMapEncoding: getTextureEncodingFromMap( envMap ),
-			// envMapCubeUV: ( !! envMap ) && ( ( envMap.mapping === CubeUVReflectionMapping ) || ( envMap.mapping === CubeUVRefractionMapping ) ),
-			// lightMap: !! material.lightMap,
-			// lightMapEncoding: getTextureEncodingFromMap( material.lightMap ),
-			// aoMap: !! material.aoMap,
-			// emissiveMap: !! material.emissiveM/ap,
-			// emissiveMapEncoding: getTextureEncodingFromMap( material.emissiveMap ),
+			outputEncoding: ( currentRenderTarget !== null ) ? getTextureEncodingFromMap( currentRenderTarget.texture ) : renderer.outputEncoding,
+			map: !! material.map,
+			mapEncoding: getTextureEncodingFromMap( material.map ),
+			matcap: !! material.matcap,
+			matcapEncoding: getTextureEncodingFromMap( material.matcap ),
+			envMap: !! envMap,
+			envMapMode: envMap && envMap.mapping,
+			envMapEncoding: getTextureEncodingFromMap( envMap ),
+			envMapCubeUV: ( !! envMap ) && ( ( envMap.mapping === CubeUVReflectionMapping ) || ( envMap.mapping === CubeUVRefractionMapping ) ),
+			lightMap: !! material.lightMap,
+			lightMapEncoding: getTextureEncodingFromMap( material.lightMap ),
+			aoMap: !! material.aoMap,
+			emissiveMap: !! material.emissiveMap,
+			emissiveMapEncoding: getTextureEncodingFromMap( material.emissiveMap ),
 			bumpMap: !! material.bumpMap,
 			normalMap: !! material.normalMap,
 			objectSpaceNormalMap: material.normalMapType === ObjectSpaceNormalMap,
@@ -376,7 +380,7 @@ function ProgramsCache( renderer, capabilities, bindingStates, info ): IPrograms
 			// shadowMapEnabled: renderer.shadowMap.enabled && shadows.length > 0,
 			// shadowMapType: renderer.shadowMap.type,
 
-			// toneMapping: material.toneMapped ? renderer.toneMapping : NoToneMapping,
+			toneMapping: material.toneMapped ? renderer.toneMapping : NoToneMapping,
 			// physicallyCorrectLights: renderer.physicallyCorrectLights,
 
 			premultipliedAlpha: material.premultipliedAlpha,
@@ -410,42 +414,42 @@ function ProgramsCache( renderer, capabilities, bindingStates, info ): IPrograms
 
 		const array = [];
 
-		// if ( parameters.shaderID ) {
+		if ( parameters.shaderID ) {
 
-		// 	array.push( parameters.shaderID );
+			array.push( parameters.shaderID );
 
-		// } else {
+		} else {
 
 			array.push( parameters.fragmentShader );
 			array.push( parameters.vertexShader );
 
-		// }
+		}
 
-		// if ( parameters.defines !== undefined ) {
+		if ( parameters.defines !== undefined ) {
 
-		// 	for ( const name in parameters.defines ) {
+			for ( const name in parameters.defines ) {
 
-		// 		array.push( name );
-		// 		array.push( parameters.defines[ name ] );
+				array.push( name );
+				array.push( parameters.defines[ name ] );
 
-		// 	}
+			}
 
-		// }
+		}
 
-		// if ( parameters.isRawShaderMaterial === false ) {
+		if ( parameters.isRawShaderMaterial === false ) {
 
-		// 	for ( let i = 0; i < parameterNames.length; i ++ ) {
+			for ( let i = 0; i < parameterNames.length; i ++ ) {
 
-		// 		array.push( parameters[ parameterNames[ i ] ] );
+				array.push( parameters[ parameterNames[ i ] ] );
 
-		// 	}
+			}
 
-		// 	array.push( renderer.outputEncoding );
-		// 	array.push( renderer.gammaFactor );
+			array.push( renderer.outputEncoding );
+			array.push( renderer.gammaFactor );
 
-		// }
+		}
 
-		// array.push( parameters.customProgramCacheKey );
+		array.push( parameters.customProgramCacheKey );
 
 		return array.join();
 
@@ -453,19 +457,19 @@ function ProgramsCache( renderer, capabilities, bindingStates, info ): IPrograms
 
 	function getUniforms( material ) {
 
-		// const shaderID = shaderIDs[ material.type ];
+		const shaderID = shaderIDs[ material.type ];
 		let uniforms;
 
-		// if ( shaderID ) {
+		if ( shaderID ) {
 
-		// 	const shader = ShaderLib[ shaderID ];
-		// 	uniforms = UniformsUtils.clone( shader.uniforms );
+			const shader = ShaderLib[ shaderID ];
+			uniforms = UniformsUtils.clone( shader.uniforms );
 
-		// } else {
+		} else {
 
 			uniforms = material.uniforms;
 
-		// }
+		}
 
 		return uniforms;
 

@@ -10,6 +10,7 @@ const _vector = /*@__PURE__*/ new Vector3();
 const _vector2 = /*@__PURE__*/ new Vector2();
 
 type TypedArray = Float32Array  | Int16Array | Int32Array | Uint16Array | Uint32Array;
+
 class BufferAttribute {
   isBufferAttribute = true;
 
@@ -22,7 +23,7 @@ class BufferAttribute {
   updateRange: { offset: number, count: number };
   version: number;
   
-	constructor( array, itemSize, normalized = false ) {
+	constructor( array: TypedArray, itemSize: number, normalized = false ) {
 
 		if ( Array.isArray( array ) ) {
 
@@ -457,7 +458,7 @@ class Uint8ClampedBufferAttribute extends BufferAttribute {
 
 class Int16BufferAttribute extends BufferAttribute {
 
-	constructor( array, itemSize, normalized ) {
+	constructor( array, itemSize, normalized = false ) {
 
 		super( new Int16Array( array ), itemSize, normalized );
 
@@ -477,7 +478,7 @@ class Uint16BufferAttribute extends BufferAttribute {
 
 class Int32BufferAttribute extends BufferAttribute {
 
-	constructor( array, itemSize, normalized ) {
+	constructor( array, itemSize, normalized = false ) {
 
 		super( new Int32Array( array ), itemSize, normalized );
 
@@ -497,7 +498,7 @@ class Uint32BufferAttribute extends BufferAttribute {
 
 class Float16BufferAttribute extends BufferAttribute {
 	isFloat16BufferAttribute = true;
-	constructor( array, itemSize, normalized ) {
+	constructor( array, itemSize, normalized = false ) {
 
 		super( new Uint16Array( array ), itemSize, normalized );
 
@@ -507,7 +508,7 @@ class Float16BufferAttribute extends BufferAttribute {
 
 class Float32BufferAttribute extends BufferAttribute {
 
-	constructor( array, itemSize, normalized ) {
+	constructor( array, itemSize, normalized = false ) {
 
 		super( new Float32Array( array ), itemSize, normalized );
 
@@ -517,7 +518,7 @@ class Float32BufferAttribute extends BufferAttribute {
 
 class Float64BufferAttribute extends BufferAttribute {
 
-	constructor( array, itemSize, normalized ) {
+	constructor( array, itemSize, normalized = false ) {
 
 		super( new Float64Array( array ), itemSize, normalized );
 

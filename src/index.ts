@@ -6,22 +6,23 @@ import {Scene} from './core/Scene';
 import {PerspectiveCamera} from "./core/PerspectiveCamera";
 import {OrbitControls} from "./core/OrbitControls";
 
-import Mesh from './core/Mesh';
+import {Mesh} from './Mesh';
 // import Renderer from "./Renderer";
 
-import makeTetraGeometry from './models/Tetrahedron';
-import BasicMaterial from './materials/BasicMaterial';
+import Tetrahedron from './models/Tetrahedron';
+
 import Stats from './helpers/Stats';
 import { WebGLRenderer } from "./WebGLRenderer";
+import { Color } from "./math/Color";
 
-
-
+import DebugLogger from './helpers/DebugLogger';
+const logger = DebugLogger();
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let gui, stats, perfLib, clock, scene, camera, renderer, controls;
+let gui, stats, clock, scene, camera, renderer;
 let tetrahedron1, tetrahedron2, tetrahedron3, floor, axes;
 
 
@@ -58,18 +59,23 @@ function toggleHelpers() {
 
 
 function tick(time, dt) {
+
+
+  // .reset().log(time);
+
   // perfLib.nextFrame(window.performance.now());
 
-  if(guiParams.navigate) {
-    guiParams.cameraTime += dt;
-    camera.setAzimuth(guiParams.cameraTime * 0.2);
-  }
+  // if(guiParams.navigate) {
+  //   guiParams.cameraTime += dt;
+  //   camera.setAzimuth(guiParams.cameraTime * 0.2);
+  // }
   
-  if(guiParams.animate) {
-    tetrahedron1.rotateX(time);
-    tetrahedron2.rotateY(time);
-    tetrahedron3.rotateZ(time);
-  }
+  // if(guiParams.animate) {
+  //   tetrahedron1.rotateX(time);
+  //   tetrahedron2.rotateY(time);
+  //   tetrahedron3.rotateZ(time);
+  // }
+
   renderer.render(scene, camera);
   stats.update(renderer.info);
   renderer.info.reset();
@@ -80,49 +86,35 @@ function init() {
   stats = Stats();
   renderer = new WebGLRenderer({ canvas });
 
-
-  // perfLib = new GLPerf({
-  //   chartLen:  30,
-  //   chartHz:  10,
-  //   gl: renderer.getContext(),
-  //   chartLogger: (chart) => {
-  //     // console.log(chart)
-  //   },
-  //   paramLogger: (logger) => {
-  //     if (perfLib && renderer.info) {
-  //       perfLib.factorGPU = 1 / renderer.info.render.calls;
-  //     }
-
-  //     stats.updateProfiler(logger);
-  //     // console.log(logger);
-  //   },
-  // });
+  const backgroundColor = new Color(0.15, 0.15, 0.12);
 
   clock = new Clock(guiParams.clockSpeed); // not working currently
   scene = new Scene();
+  scene.background = backgroundColor;
 
   camera = new PerspectiveCamera(45, window.innerWidth/window.innerHeight);
   // camera.setPosition(0, 0, 12)
   // camera.setElevation(-Math.PI/12); // 30 deg
-  controls = new OrbitControls(camera, canvas)
+  const controls = new OrbitControls(camera, canvas)
   
-  const tetraGeometry = makeTetraGeometry(1.6);
   // const floorGeometry = makeFloorGeometry({dimension: 5.0 , lines: 10, alignment: 'Y', shift: 0 });
-  const basicMaterial = BasicMaterial();
+  // const basicMaterial = BasicMaterial();
+ 
 
-  tetrahedron1 = new Mesh(tetraGeometry, basicMaterial);
-  tetrahedron2 = new Mesh(tetraGeometry, basicMaterial);
-  tetrahedron2.translate("x", 3.0);
-  tetrahedron3 = new Mesh(tetraGeometry, basicMaterial);
-  tetrahedron3.translate("x", -3.0);
+
+  tetrahedron1 = new Mesh(Tetrahedron.makeGeometry(1.6), Tetrahedron.material);
+  // tetrahedron2 = new Mesh(tetraGeometry, basicMaterial);
+  // tetrahedron2.position.x  = 3.0;
+  // tetrahedron3 = new Mesh(tetraGeometry, basicMaterial);
+  // tetrahedron3.position.x = -3.0;
   // floor = new Mesh(floorGeometry, basicMaterial);
   // axes = new Axes(gl, 0.75);
 
   // scene.add(floor);
   // scene.add(axes);
   scene.add(tetrahedron1);
-  scene.add(tetrahedron2);
-  scene.add(tetrahedron3);
+  // scene.add(tetrahedron2);
+  // scene.add(tetrahedron3);
 
   window.addEventListener('keyup', (e) => {
     if(e.key === 'h') {
@@ -135,6 +127,8 @@ function init() {
   // perfLib.begin('profiler');
   // clock.on('tick', tick);
   // clock.
+
+  renderer.setAnimationLoop(tick)
 
 }
 

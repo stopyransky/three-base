@@ -275,7 +275,7 @@ class Object3D extends EventDispatcher {
 		return vector.applyMatrix4(_m1.copy(this.matrixWorld).invert());
 	}
 
-	lookAt(x, y, z) {
+	lookAt(x, y?, z?) {
 		// This method does not support objects having non-uniformly-scaled parent(s)
 
 		if (x.isVector3) {
@@ -487,7 +487,7 @@ class Object3D extends EventDispatcher {
 		return target.set(e[8], e[9], e[10]).normalize();
 	}
 
-	raycast() {}
+	raycast(raycaster, intersects) {}
 
 	traverse(callback) {
 		callback(this);
