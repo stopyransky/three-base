@@ -1,5 +1,5 @@
 import { Material } from './Material';
-import { cloneUniforms } from './shaders/UniformsUtils';
+import { cloneUniforms } from '../shaders/UniformsUtils';
 
 const default_vertex = `void main() {
 	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );

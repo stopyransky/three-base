@@ -1,6 +1,6 @@
 import { Material } from './Material';
-import { MultiplyOperation } from './constants';
-import { Color } from '../math/Color';
+import { MultiplyOperation } from '../constants';
+import { Color } from '../../math/Color';
 
 /**
  * parameters = {
@@ -122,6 +122,14 @@ class MeshBasicMaterial extends Material {
 		return this;
 
 	}
+
+	// https://threejs.org/docs/index.html?q=mater#api/en/materials/Material
+	// defined with Material
+	// customProgramCacheKey () {
+
+	// 	return '';
+	
+	// }
 
 }
 

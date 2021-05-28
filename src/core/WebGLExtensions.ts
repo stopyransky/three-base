@@ -1,8 +1,16 @@
-function WebGLExtensions( gl: WebGL2RenderingContext ) {
+import { ICapabilities } from "./WebGLCapabilities";
+
+interface IExtensions {
+	has: (name: string) => boolean;
+	get: (name: string) => any;
+	init: (capabilities: ICapabilities) => any;
+}
+
+function WebGLExtensions( gl: WebGL2RenderingContext ): IExtensions {
 
 	const extensions = {};
 
-	function getExtension( name ) {
+	function getExtension( name: string ) {
 
 		if ( extensions[ name ] !== undefined ) {
 
@@ -92,4 +100,4 @@ function WebGLExtensions( gl: WebGL2RenderingContext ) {
 }
 
 
-export { WebGLExtensions };
+export { WebGLExtensions, IExtensions };

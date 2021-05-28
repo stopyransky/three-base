@@ -28,16 +28,19 @@ import { RenderListsCache } from "./core/cache/RenderListsCache";
 
 import { WebGLCapabilities } from "./core/WebGLCapabilities";
 import { WebGLExtensions } from "./core/WebGLExtensions";
-import WebGLInfo from "./core/WebGLInfo";
+import { WebGLInfo, IWebGLInfo } from "./core/WebGLInfo";
 import WebGLState from "./core/WebGLState";
 import { WebGLBufferRenderer } from "./core/BufferRenderer";
 import { WebGLIndexedBufferRenderer } from "./core/IndexedBufferRenderer";
 import { WebGLMaterials } from "./core/WebGLMaterials";
 import { WebGLAnimation } from "./core/WebGLAnimation";
 // import { WebGLUtils } from "./core/WebGLUtils";
+import { Material } from "./core/materials/Material";
+import { Scene } from "./core/Scene";
 
 // discard / on hold
 import { WebGLBackground } from "./core/WebGLBackground";
+import { Mesh } from "./Mesh";
 // import { WebGLRenderStates } from "./core/WebGLRenderStates"; // lights and shadows
 // import { WebGLClipping } from "./core/WebGLClipping";
 // import { WebGLCubeMaps } from "./core/WebGLCubeMaps";
@@ -48,8 +51,6 @@ import { WebGLBackground } from "./core/WebGLBackground";
 // import { DataTexture } from "../textures/DataTexture";
 // import DebugLogger from './helpers/DebugLogger';
 // const logger = DebugLogger();
-
-
 
 function createCanvasElement() {
   const canvas = document.createElementNS(
@@ -237,11 +238,12 @@ function WebGLRenderer(parameters) {
     _canvas.addEventListener("webglcontextrestored", onContextRestore, false);
 
     if (_gl === null) {
-      const contextNames = ["webgl2", "webgl", "experimental-webgl"];
+      // const contextNames = ["webgl2", "webgl", "experimental-webgl"];
+      const contextNames = ["webgl2"];
 
-      if (_this.isWebGL1Renderer === true) {
-        contextNames.shift();
-      }
+      // if (_this.isWebGL1Renderer === true) {
+      //   contextNames.shift();
+      // }
 
       _gl = getContext(contextNames, contextAttributes);
 
@@ -343,7 +345,7 @@ function WebGLRenderer(parameters) {
 
     materials = WebGLMaterials(propertiesCache);
     // renderStates = new WebGLRenderStates(extensions, capabilities);
-    
+
     // background = new WebGLBackground(
     // 	_this,
     // 	cubemaps,
@@ -352,11 +354,7 @@ function WebGLRenderer(parameters) {
     // 	_premultipliedAlpha
     // );
 
-    background = WebGLBackground(
-    	_this,
-    	state,
-    	_premultipliedAlpha
-    );
+    background = WebGLBackground(_this, state, _premultipliedAlpha);
 
     // shadowMap = new WebGLShadowMap(_this, objects, capabilities);
 
@@ -1241,7 +1239,7 @@ function WebGLRenderer(parameters) {
     object.onAfterRender(_this, scene, camera, geometry, material, group);
   }
 
-  function getProgram(material, scene, object) {
+  function getProgram(material: Material, scene, object: Mesh) {
     if (scene.isScene !== true) scene = _emptyScene; // scene could be a Mesh, Line, Points, ...
 
     const materialProperties = propertiesCache.get(material);
@@ -1252,11 +1250,11 @@ function WebGLRenderer(parameters) {
     // const lightsStateVersion = lights.state.version;
 
     const parameters = programsCache.getParameters(
-      material,
+      scene,
+      object,
+      material
       // lights.state,
       // shadowsArray,
-      scene,
-      object
     );
     const programCacheKey = programsCache.getProgramCacheKey(parameters);
 

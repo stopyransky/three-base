@@ -1,5 +1,5 @@
 
-export interface IWebGLInfo {
+interface IWebGLInfo {
 	memory: {
 		geometries: number;
 		textures: number;
@@ -117,4 +117,4 @@ function WebGLInfo( gl: WebGL2RenderingContext ): IWebGLInfo {
 }
 
 
-export default WebGLInfo;
+export { WebGLInfo, IWebGLInfo };

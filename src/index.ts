@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
+
 import "./styles.css";
 import * as dat from 'dat.gui';
 
@@ -57,34 +59,12 @@ function toggleHelpers() {
   axes.visible = guiParams.helpersVisible;
 }
 
-
-function tick(time, dt) {
-
-
-  // .reset().log(time);
-
-  // perfLib.nextFrame(window.performance.now());
-
-  // if(guiParams.navigate) {
-  //   guiParams.cameraTime += dt;
-  //   camera.setAzimuth(guiParams.cameraTime * 0.2);
-  // }
-  
-  // if(guiParams.animate) {
-  //   tetrahedron1.rotateX(time);
-  //   tetrahedron2.rotateY(time);
-  //   tetrahedron3.rotateZ(time);
-  // }
-
-  renderer.render(scene, camera);
-  stats.update(renderer.info);
-  renderer.info.reset();
-
-}
-
 function init() {
   stats = Stats();
+  // const context = canvas.getContext('webgl2');
   renderer = new WebGLRenderer({ canvas });
+  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setSize( window.innerWidth, window.innerHeight );
 
   const backgroundColor = new Color(0.15, 0.15, 0.12);
 
@@ -129,6 +109,30 @@ function init() {
   // clock.
 
   renderer.setAnimationLoop(tick)
+
+}
+
+function tick(time, dt) {
+
+
+  // .reset().log(time);
+
+  // perfLib.nextFrame(window.performance.now());
+
+  // if(guiParams.navigate) {
+  //   guiParams.cameraTime += dt;
+  //   camera.setAzimuth(guiParams.cameraTime * 0.2);
+  // }
+  
+  // if(guiParams.animate) {
+  //   tetrahedron1.rotateX(time);
+  //   tetrahedron2.rotateY(time);
+  //   tetrahedron3.rotateZ(time);
+  // }
+
+  renderer.render(scene, camera);
+  stats.update(renderer.info);
+  renderer.info.reset();
 
 }
 
